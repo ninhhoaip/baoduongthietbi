@@ -118,6 +118,10 @@
                             <label for="addIntervalDays" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Khoảng Thời Gian Bảo Dưỡng (Ngày)</label>
                             <input type="number" id="addIntervalDays" name="intervalDays" required min="1" class="mt-1 block w-full px-3 py-2">
                         </div>
+                        <div>
+                            <label for="addPerformer" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Người Thực Hiện</label>
+                            <input type="text" id="addPerformer" name="performer" class="mt-1 block w-full px-3 py-2">
+                        </div>
                         <div class="flex justify-end space-x-3">
                             <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 Hủy
@@ -157,6 +161,10 @@
                         <div>
                             <label for="editIntervalDays" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Khoảng Thời Gian Bảo Dưỡng (Ngày)</label>
                             <input type="number" id="editIntervalDays" name="intervalDays" required min="1" class="mt-1 block w-full px-3 py-2">
+                        </div>
+                        <div>
+                            <label for="editPerformer" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Người Thực Hiện</label>
+                            <input type="text" id="editPerformer" name="performer" class="mt-1 block w-full px-3 py-2">
                         </div>
                         <div class="flex justify-end space-x-3">
                             <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -255,7 +263,7 @@
                     }
                 });
                 if (!response.ok) {
-                    throw new new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+                    throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
                 }
                 const data = await response.json();
                 // Assuming the data structure in JSONBin is { "equipment": [...] }
@@ -351,6 +359,7 @@
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Tên Thiết Bị</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày Bảo Dưỡng Cuối</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Khoảng Thời Gian (Ngày)</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Người Thực Hiện</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày Bảo Dưỡng Tiếp Theo</th>
                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tr-lg">Hành Động</th>
                             </tr>
@@ -374,6 +383,9 @@
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                             ${eq.maintenance_interval_days}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${eq.performer || 'N/A'}
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100' : 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100'}">
@@ -461,6 +473,7 @@
             const name = document.getElementById('addName').value;
             const lastMaintenanceDate = document.getElementById('addLastMaintenanceDate').value;
             const intervalDays = parseInt(document.getElementById('addIntervalDays').value, 10);
+            const performer = document.getElementById('addPerformer').value; // Get performer value
 
             if (!name || !lastMaintenanceDate || isNaN(intervalDays) || intervalDays <= 0) {
                 showMessage('Vui lòng điền đầy đủ và chính xác thông tin.', 'error');
@@ -472,6 +485,7 @@
                 name: name,
                 last_maintenance_date: lastMaintenanceDate, // Store as YYYY-MM-DD string
                 maintenance_interval_days: intervalDays,
+                performer: performer, // Add performer to the object
                 createdAt: new Date().toISOString()
             };
 
@@ -489,6 +503,7 @@
                 document.getElementById('editName').value = editingEquipment.name;
                 document.getElementById('editLastMaintenanceDate').value = formatDateForInput(editingEquipment.last_maintenance_date);
                 document.getElementById('editIntervalDays').value = editingEquipment.maintenance_interval_days;
+                document.getElementById('editPerformer').value = editingEquipment.performer || ''; // Set performer value
                 openModal('editModal');
             }
         }
@@ -500,6 +515,7 @@
             const name = document.getElementById('editName').value;
             const lastMaintenanceDate = document.getElementById('editLastMaintenanceDate').value;
             const intervalDays = parseInt(document.getElementById('editIntervalDays').value, 10);
+            const performer = document.getElementById('editPerformer').value; // Get updated performer value
 
             if (!name || !lastMaintenanceDate || isNaN(intervalDays) || intervalDays <= 0) {
                 showMessage('Vui lòng điền đầy đủ và chính xác thông tin.', 'error');
@@ -514,6 +530,7 @@
                     name: name,
                     last_maintenance_date: lastMaintenanceDate, // Store as YYYY-MM-DD string
                     maintenance_interval_days: intervalDays,
+                    performer: performer, // Update performer in the object
                     updatedAt: new Date().toISOString()
                 };
                 await saveEquipmentOnline(); // Save to JSONBin.io
@@ -588,6 +605,9 @@
                                 </p>
                                 <p class="text-sm">
                                     Ngày đến hạn: ${formatDate(notif.nextDate)}
+                                </p>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">
+                                    Người thực hiện: ${notif.equipment.performer || 'N/A'}
                                 </p>
                             </div>
                         </div>
