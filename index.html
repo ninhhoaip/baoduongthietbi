@@ -68,8 +68,8 @@
                 </button>
             </form>
             <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-                <br>
-                
+                Tài khoản Admin: admin / Admin@3210 <br>
+                Tài khoản User: baoduong / khangmy123
             </p>
         </div>
     </div>
@@ -992,7 +992,7 @@
 
             const notificationContent = document.getElementById('notificationContent');
             if (notifications.length === 0) {
-                notificationContent.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400">Không có lịch bảo dưỡng sắp tới hoặc đã quá hạn.</p>`;
+                notificationContent.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400 py-8">Không có lịch bảo dưỡng sắp tới hoặc đã quá hạn.</p>`;
             } else {
                 let notifHtml = '<div class="space-y-4">';
                 notifications.forEach(notif => {
@@ -1423,7 +1423,7 @@
             document.getElementById('loginMessage').classList.add('hidden'); // Clear previous login messages
         }
 
-        function showMainApp(role, username) {
+        async function showMainApp(role, username) { // Made async to await fetchEquipment
             currentUserRole = role;
             currentUsername = username; // Store username
             sessionStorage.setItem('loggedInUserRole', role); // Store role in session storage
@@ -1443,8 +1443,11 @@
                 addBtn.classList.add('hidden');
                 viewPendingBtn.classList.add('hidden');
             }
-            // Re-render equipment list to apply role-based action button visibility
-            sortAndRenderEquipment();
+            
+            // Explicitly fetch data after login to ensure it's up-to-date
+            const fetchedEquipment = await fetchEquipment();
+            equipmentList = fetchedEquipment;
+            sortAndRenderEquipment(); // Sort and render after data is fetched
         }
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -1455,8 +1458,6 @@
 
             if (USERS[usernameInput] && USERS[usernameInput] === passwordInput) {
                 showMainApp(usernameInput === 'admin' ? 'admin' : 'user', usernameInput);
-                // Initial load of equipment after successful login
-                // This is already handled by the DOMContentLoaded listener if loggedInUserRole is found
             } else {
                 loginMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
                 loginMessage.classList.remove('hidden');
@@ -1476,12 +1477,10 @@
             const storedRole = sessionStorage.getItem('loggedInUserRole');
             const storedUsername = sessionStorage.getItem('loggedInUsername');
             if (storedRole && storedUsername) {
+                // If already logged in, show main app and fetch data
                 showMainApp(storedRole, storedUsername);
-                // Load equipment if already logged in
-                const fetchedEquipment = await fetchEquipment();
-                equipmentList = fetchedEquipment;
-                sortAndRenderEquipment();
             } else {
+                // If not logged in, show login page
                 showLoginPage();
             }
             lucide.createIcons(); // Ensure icons are created on initial load
