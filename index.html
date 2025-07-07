@@ -33,18 +33,53 @@
         /* Ensure inputs and selects have consistent styling */
         input[type="text"],
         input[type="number"],
-        input[type="date"] {
+        input[type="date"],
+        input[type="password"],
+        select,
+        textarea {
             @apply bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+        }
+        /* Style for disabled buttons */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
     <!-- Optional: Inter font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="font-inter">
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg">
-        <!-- User ID Display - Simulated, as no real auth in this version -->
+    <!-- Login Page -->
+    <div id="loginPage" class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-sm">
+            <h2 class="text-2xl font-bold text-center mb-6 text-indigo-700 dark:text-indigo-400">Đăng Nhập</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Mật khẩu</label>
+                    <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2">
+                </div>
+                <div id="loginMessage" class="text-red-500 text-sm text-center hidden"></div>
+                <button type="submit" class="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Đăng Nhập
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+                Tài khoản Admin: admin / Admin@3210 <br>
+                Tài khoản User: baoduong / khangmy123
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Application Content -->
+    <div id="mainApp" class="hidden min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg">
+        <!-- User ID Display -->
         <div id="userIdDisplay" class="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">
             ID người dùng: <span class="font-mono bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-md">local-user-id</span>
+            <button id="logoutButton" class="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-full shadow-md transition duration-300 ease-in-out">Đăng Xuất</button>
         </div>
 
         <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8 text-indigo-700 dark:text-indigo-400">
@@ -79,6 +114,19 @@
             >
                 <i data-lucide="bell" class="w-5 h-5 mr-2"></i> Kiểm Tra Thông Báo
             </button>
+            <button
+                id="viewHistoryButton"
+                class="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+            >
+                <i data-lucide="history" class="w-5 h-5 mr-2"></i> Xem Lịch Sử Bảo Dưỡng
+            </button>
+            <button
+                id="viewPendingCompletionsButton"
+                class="hidden flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75"
+            >
+                <i data-lucide="list-checks" class="w-5 h-5 mr-2"></i> Yêu Cầu Hoàn Thành
+                <span id="pendingCompletionsCount" class="ml-2 px-2 py-0.5 text-xs font-bold bg-white text-purple-600 rounded-full">0</span>
+            </button>
         </div>
 
         <!-- Equipment List Table -->
@@ -109,6 +157,14 @@
                         <div>
                             <label for="addName" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tên Thiết Bị</label>
                             <input type="text" id="addName" name="name" required class="mt-1 block w-full px-3 py-2">
+                        </div>
+                        <div>
+                            <label for="addMachineNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Số Máy</label>
+                            <input type="text" id="addMachineNumber" name="machineNumber" class="mt-1 block w-full px-3 py-2">
+                        </div>
+                        <div>
+                            <label for="addWorkshopName" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tên Xưởng</label>
+                            <input type="text" id="addWorkshopName" name="workshopName" class="mt-1 block w-full px-3 py-2">
                         </div>
                         <div>
                             <label for="addLastMaintenanceDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ngày Bảo Dưỡng Cuối Cùng</label>
@@ -153,6 +209,14 @@
                         <div>
                             <label for="editName" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tên Thiết Bị</label>
                             <input type="text" id="editName" name="name" required class="mt-1 block w-full px-3 py-2">
+                        </div>
+                        <div>
+                            <label for="editMachineNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Số Máy</label>
+                            <input type="text" id="editMachineNumber" name="machineNumber" class="mt-1 block w-full px-3 py-2">
+                        </div>
+                        <div>
+                            <label for="editWorkshopName" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tên Xưởng</label>
+                            <input type="text" id="editWorkshopName" name="workshopName" class="mt-1 block w-full px-3 py-2">
                         </div>
                         <div>
                             <label for="editLastMaintenanceDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ngày Bảo Dưỡng Cuối Cùng</label>
@@ -224,6 +288,112 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mark as Completed Modal (used for both admin confirmation and user submission) -->
+        <div id="markCompletedModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full modal-content">
+                <h3 id="markCompletedModalTitle" class="text-lg font-bold leading-6 text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">
+                    Đánh Dấu Hoàn Thành Bảo Dưỡng
+                </h3>
+                <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onclick="closeModal('markCompletedModal')">
+                    <span class="sr-only">Đóng</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="mt-2 text-gray-700 dark:text-gray-300">
+                    <p id="markCompletedText" class="mb-4">
+                        Bạn có muốn đánh dấu bảo dưỡng cho thiết bị '<strong id="markCompletedEquipmentName"></strong>' là đã hoàn thành vào hôm nay không?
+                    </p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="completedPerformer" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Người Thực Hiện (nếu khác)</label>
+                            <input type="text" id="completedPerformer" name="completedPerformer" class="mt-1 block w-full px-3 py-2">
+                        </div>
+                        <div>
+                            <label for="completedNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ghi Chú</label>
+                            <textarea id="completedNotes" name="completedNotes" rows="3" class="mt-1 block w-full px-3 py-2"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal('markCompletedModal')" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Hủy
+                        </button>
+                        <button type="button" id="confirmMarkCompletedButton" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            Hoàn Thành
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div id="historyModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full modal-content">
+                <h3 class="text-lg font-bold leading-6 text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">
+                    Lịch Sử Bảo Dưỡng
+                </h3>
+                <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onclick="closeModal('historyModal')">
+                    <span class="sr-only">Đóng</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="mt-2 text-gray-700 dark:text-gray-300">
+                    <div class="flex flex-wrap gap-4 mb-4 items-center">
+                        <div>
+                            <label for="historyMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tháng:</label>
+                            <select id="historyMonth" class="mt-1 block w-full px-3 py-2">
+                                <!-- Options will be generated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="historyYear" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Năm:</label>
+                            <select id="historyYear" class="mt-1 block w-full px-3 py-2">
+                                <!-- Options will be generated by JS -->
+                            </select>
+                        </div>
+                        <button id="filterHistoryButton" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md shadow-sm transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Lọc
+                        </button>
+                        <button
+                            id="exportExcelButton"
+                            class="hidden flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow-sm transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+                        >
+                            <i data-lucide="download" class="w-5 h-5 mr-2"></i> Xuất Excel
+                        </button>
+                    </div>
+                    <div id="historyContent" class="overflow-x-auto">
+                        <!-- History table will be rendered here by JavaScript -->
+                        <p class="text-center text-gray-500 dark:text-gray-400 py-8">
+                            Chọn tháng và năm để xem lịch sử bảo dưỡng.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Completions Modal (Admin only) -->
+        <div id="pendingCompletionsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full modal-content">
+                <h3 class="text-lg font-bold leading-6 text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">
+                    Yêu Cầu Hoàn Thành Đang Chờ
+                </h3>
+                <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onclick="closeModal('pendingCompletionsModal')">
+                    <span class="sr-only">Đóng</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div id="pendingCompletionsContent" class="mt-2 text-gray-700 dark:text-gray-300">
+                    <!-- Pending completions list will be rendered here by JavaScript -->
+                    <p class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        Không có yêu cầu hoàn thành nào đang chờ.
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -236,11 +406,21 @@
         // Note: Exposing Master Key directly in client-side code is generally not recommended for sensitive data.
         // For this free, simple app, it's acceptable, but be aware of the security implications.
         const JSONBIN_BIN_ID = '6868e7508a456b7966bbb0fe'; // THAY THẾ BẰNG BIN ID CỦA BẠN
-        const JSONBIN_MASTER_KEY = '$2a$10$KgmXMa2.uLnn6CslYVzKA.8Ni7hl8QOLbAdYe5bsBqUiSHpGKDh9S'; // THAY THẾ BẰNG MASTER KEY CỦA BẠN
+        const JSONBIN_MASTER_KEY = '$2a$10$KgmXMa2.uLnn6CslYVzKA.8Ni7hl8QOLbAdYe5bsBqUiSHpGKDh9S'; // THAY THAY THẾ BẰNG MASTER KEY CỦA BẠN
 
         let equipmentList = [];
         let equipmentToDelete = null; // Stores the equipment object to be deleted
         let editingEquipment = null; // Stores the equipment object being edited
+        let equipmentToMarkCompleted = null; // Stores the equipment object to mark as completed
+
+        let currentUserRole = null; // 'admin' or 'user'
+        let currentUsername = null; // Stores the logged-in username
+
+        // User credentials (hardcoded for demonstration)
+        const USERS = {
+            'admin': 'Admin@3210',
+            'baoduong': 'khangmy123'
+        };
 
         // Function to show loading indicator
         function showLoading() {
@@ -267,7 +447,14 @@
                 }
                 const data = await response.json();
                 // Assuming the data structure in JSONBin is { "equipment": [...] }
-                return data.equipment || [];
+                // Ensure last_maintenance_date is a Date object for calculations
+                // And initialize completed_maintenances and pending_completions arrays if they don't exist
+                return (data.equipment || []).map(eq => ({
+                    ...eq,
+                    last_maintenance_date: new Date(eq.last_maintenance_date + 'T00:00:00'),
+                    completed_maintenances: eq.completed_maintenances || [], // Ensure history array exists
+                    pending_completions: eq.pending_completions || [] // Ensure pending completions array exists
+                }));
             } catch (error) {
                 console.error("Lỗi khi tải dữ liệu thiết bị:", error);
                 showMessage('Không thể tải dữ liệu từ máy chủ. Vui lòng kiểm tra cấu hình JSONBin.io và kết nối mạng.', 'error');
@@ -281,7 +468,7 @@
         async function saveEquipmentOnline() {
             showLoading();
             try {
-                // Convert Date objects back to YYYY-MM-DD strings for storage
+                // Convert Date objects back to ISO strings for storage
                 const serializableList = equipmentList.map(eq => ({
                     ...eq,
                     last_maintenance_date: formatDateForInput(eq.last_maintenance_date)
@@ -295,13 +482,14 @@
                     body: JSON.stringify({ equipment: serializableList }) // Wrap in an object matching your bin's structure
                 });
                 if (!response.ok) {
-                    throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+                    const errorData = await response.json();
+                    throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}. Chi tiết: ${JSON.stringify(errorData)}`);
                 }
                 // No need to parse response for PUT, just check status
                 showMessage('Dữ liệu đã được lưu trực tuyến thành công!', 'success');
             } catch (error) {
                 console.error("Lỗi khi lưu dữ liệu thiết bị:", error);
-                showMessage('Lỗi khi lưu dữ liệu trực tuyến. Vui lòng kiểm tra cấu hình JSONBin.io và kết nối mạng.', 'error');
+                showMessage('Lỗi khi lưu dữ liệu trực tuyến. Vui lòng kiểm tra cấu hình JSONBin.io và kết nối mạng. ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
@@ -315,6 +503,19 @@
             const month = String(d.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
             const year = d.getFullYear();
             return `${day}/${month}/${year}`;
+        }
+
+        // Helper to format date and time to DD/MM/YYYY HH:MM:SS
+        function formatDateTime(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const seconds = String(d.getSeconds()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         }
 
         // Helper to format date for input (YYYY-MM-DD)
@@ -357,6 +558,8 @@
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Tên Thiết Bị</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Số Máy</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tên Xưởng</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày Bảo Dưỡng Cuối</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Khoảng Thời Gian (Ngày)</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Người Thực Hiện</th>
@@ -373,10 +576,76 @@
                 today.setHours(0, 0, 0, 0); // Normalize today
                 const isOverdue = nextMaintenanceDate <= today;
 
+                const diffTime = nextMaintenanceDate.getTime() - today.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const isUpcomingSoon = diffDays > 0 && diffDays <= 2; // Within 2 days, but not overdue
+                const isWithinThreeDaysForUser = diffDays >= 0 && diffDays <= 3; // For user, can mark if due today or within next 3 days
+
+                let rowClass = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+                let dateSpanClass = 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100';
+                let dateIcon = '';
+
+                if (isOverdue) {
+                    rowClass = 'bg-red-50 dark:bg-red-900';
+                    dateSpanClass = 'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100';
+                    dateIcon = '<i data-lucide="clock" class="w-3 h-3 mr-1"></i>';
+                } else if (isUpcomingSoon) {
+                    rowClass = 'bg-yellow-50 dark:bg-yellow-900';
+                    dateSpanClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
+                    dateIcon = '<i data-lucide="bell" class="w-3 h-3 mr-1"></i>'; // Optional: change icon for upcoming
+                }
+
+                // Conditional action buttons based on user role
+                let actionButtonsHtml = '';
+                if (currentUserRole === 'admin') {
+                    actionButtonsHtml = `
+                        <button
+                            onclick="openEditModal('${eq.id}')"
+                            class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                            title="Chỉnh sửa"
+                        >
+                            <i data-lucide="edit" class="w-5 h-5"></i>
+                        </button>
+                        <button
+                            onclick="openMarkCompletedModal('${eq.id}')"
+                            class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                            title="Đánh dấu hoàn thành"
+                        >
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        </button>
+                        <button
+                            onclick="openConfirmDeleteModal('${eq.id}')"
+                            class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                            title="Xóa"
+                        >
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    `;
+                } else if (currentUserRole === 'user') { // User can only mark as done
+                    const isDisabled = !isWithinThreeDaysForUser;
+                    actionButtonsHtml = `
+                        <button
+                            onclick="openMarkCompletedModal('${eq.id}')"
+                            class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150 ease-in-out ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}"
+                            title="${isDisabled ? 'Chưa đến thời gian bảo dưỡng' : 'Đã làm'}"
+                            ${isDisabled ? 'disabled' : ''}
+                        >
+                            <i data-lucide="check-check" class="w-5 h-5"></i> Đã làm
+                        </button>
+                    `;
+                }
+
+
                 tableHtml += `
-                    <tr class="${isOverdue ? 'bg-red-50 dark:bg-red-900' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}">
+                    <tr class="${rowClass}">
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                             ${eq.name}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${eq.machineNumber || 'N/A'}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${eq.workshopName || 'N/A'}
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                             ${formatDate(eq.last_maintenance_date)}
@@ -388,27 +657,14 @@
                             ${eq.performer || 'N/A'}
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100' : 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100'}">
-                                ${isOverdue ? '<i data-lucide="clock" class="w-3 h-3 mr-1"></i>' : ''}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${dateSpanClass}">
+                                ${dateIcon}
                                 ${formatDate(nextMaintenanceDate)}
                             </span>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-center space-x-2">
-                                <button
-                                    onclick="openEditModal('${eq.id}')"
-                                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
-                                    title="Chỉnh sửa"
-                                >
-                                    <i data-lucide="edit" class="w-5 h-5"></i>
-                                </button>
-                                <button
-                                    onclick="openConfirmDeleteModal('${eq.id}')"
-                                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
-                                    title="Xóa"
-                                >
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                </button>
+                                ${actionButtonsHtml}
                             </div>
                         </td>
                     </tr>
@@ -433,6 +689,7 @@
                 return nextA.getTime() - nextB.getTime();
             });
             renderEquipmentList();
+            updatePendingCompletionsCount(); // Update count whenever list is rendered
         }
 
         // Generic function to open a modal
@@ -446,11 +703,12 @@
             // Clear editing/deleting state when modals are closed
             if (modalId === 'editModal') editingEquipment = null;
             if (modalId === 'confirmDeleteModal') equipmentToDelete = null;
+            if (modalId === 'markCompletedModal') equipmentToMarkCompleted = null;
         }
 
         // Event listener for clicking outside modals
         document.addEventListener('mousedown', (event) => {
-            const modals = ['addModal', 'editModal', 'notificationModal', 'confirmDeleteModal'];
+            const modals = ['addModal', 'editModal', 'notificationModal', 'confirmDeleteModal', 'markCompletedModal', 'historyModal', 'pendingCompletionsModal'];
             modals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && !modal.classList.contains('hidden')) {
@@ -464,16 +722,27 @@
 
         // Handle Add Equipment
         document.getElementById('addEquipmentButton').addEventListener('click', () => {
+            if (currentUserRole !== 'admin') {
+                showMessage('Bạn không có quyền thêm thiết bị.', 'error');
+                return;
+            }
             document.getElementById('addEquipmentForm').reset(); // Clear form before opening
             openModal('addModal');
         });
 
         document.getElementById('addEquipmentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (currentUserRole !== 'admin') { // Double check role for submission
+                showMessage('Bạn không có quyền thực hiện thao tác này.', 'error');
+                return;
+            }
+
             const name = document.getElementById('addName').value;
+            const machineNumber = document.getElementById('addMachineNumber').value;
+            const workshopName = document.getElementById('addWorkshopName').value;
             const lastMaintenanceDate = document.getElementById('addLastMaintenanceDate').value;
             const intervalDays = parseInt(document.getElementById('addIntervalDays').value, 10);
-            const performer = document.getElementById('addPerformer').value; // Get performer value
+            const performer = document.getElementById('addPerformer').value;
 
             if (!name || !lastMaintenanceDate || isNaN(intervalDays) || intervalDays <= 0) {
                 showMessage('Vui lòng điền đầy đủ và chính xác thông tin.', 'error');
@@ -483,57 +752,78 @@
             const newEquipment = {
                 id: Date.now().toString(), // Simple unique ID
                 name: name,
-                last_maintenance_date: lastMaintenanceDate, // Store as YYYY-MM-DD string
+                machineNumber: machineNumber,
+                workshopName: workshopName,
+                last_maintenance_date: lastMaintenanceDate,
                 maintenance_interval_days: intervalDays,
-                performer: performer, // Add performer to the object
-                createdAt: new Date().toISOString()
+                performer: performer,
+                createdAt: new Date().toISOString(),
+                completed_maintenances: [], // Initialize empty history array
+                pending_completions: [] // Initialize empty pending completions array
             };
 
             equipmentList.push(newEquipment);
-            await saveEquipmentOnline(); // Save to JSONBin.io
+            await saveEquipmentOnline();
+            const fetchedEquipment = await fetchEquipment();
+            equipmentList = fetchedEquipment;
             sortAndRenderEquipment();
             closeModal('addModal');
         });
 
         // Handle Edit Equipment
         function openEditModal(id) {
+            if (currentUserRole !== 'admin') {
+                showMessage('Bạn không có quyền chỉnh sửa thiết bị.', 'error');
+                return;
+            }
             editingEquipment = equipmentList.find(eq => eq.id === id);
             if (editingEquipment) {
                 document.getElementById('editId').value = editingEquipment.id;
                 document.getElementById('editName').value = editingEquipment.name;
+                document.getElementById('editMachineNumber').value = editingEquipment.machineNumber || '';
+                document.getElementById('editWorkshopName').value = editingEquipment.workshopName || '';
                 document.getElementById('editLastMaintenanceDate').value = formatDateForInput(editingEquipment.last_maintenance_date);
                 document.getElementById('editIntervalDays').value = editingEquipment.maintenance_interval_days;
-                document.getElementById('editPerformer').value = editingEquipment.performer || ''; // Set performer value
+                document.getElementById('editPerformer').value = editingEquipment.performer || '';
                 openModal('editModal');
             }
         }
 
         document.getElementById('editEquipmentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (currentUserRole !== 'admin') { // Double check role for submission
+                showMessage('Bạn không có quyền thực hiện thao tác này.', 'error');
+                return;
+            }
             if (!editingEquipment) return;
 
             const name = document.getElementById('editName').value;
+            const machineNumber = document.getElementById('editMachineNumber').value;
+            const workshopName = document.getElementById('editWorkshopName').value;
             const lastMaintenanceDate = document.getElementById('editLastMaintenanceDate').value;
             const intervalDays = parseInt(document.getElementById('editIntervalDays').value, 10);
-            const performer = document.getElementById('editPerformer').value; // Get updated performer value
+            const performer = document.getElementById('editPerformer').value;
 
             if (!name || !lastMaintenanceDate || isNaN(intervalDays) || intervalDays <= 0) {
                 showMessage('Vui lòng điền đầy đủ và chính xác thông tin.', 'error');
                 return;
             }
 
-            // Find and update the equipment in the list
             const index = equipmentList.findIndex(eq => eq.id === editingEquipment.id);
             if (index !== -1) {
                 equipmentList[index] = {
                     ...equipmentList[index],
                     name: name,
-                    last_maintenance_date: lastMaintenanceDate, // Store as YYYY-MM-DD string
+                    machineNumber: machineNumber,
+                    workshopName: workshopName,
+                    last_maintenance_date: lastMaintenanceDate,
                     maintenance_interval_days: intervalDays,
-                    performer: performer, // Update performer in the object
+                    performer: performer,
                     updatedAt: new Date().toISOString()
                 };
-                await saveEquipmentOnline(); // Save to JSONBin.io
+                await saveEquipmentOnline();
+                const fetchedEquipment = await fetchEquipment();
+                equipmentList = fetchedEquipment;
                 sortAndRenderEquipment();
                 closeModal('editModal');
             } else {
@@ -543,6 +833,10 @@
 
         // Handle Delete Equipment
         function openConfirmDeleteModal(id) {
+            if (currentUserRole !== 'admin') {
+                showMessage('Bạn không có quyền xóa thiết bị.', 'error');
+                return;
+            }
             equipmentToDelete = equipmentList.find(eq => eq.id === id);
             if (equipmentToDelete) {
                 document.getElementById('deleteConfirmationText').innerHTML = `Bạn có chắc chắn muốn xóa thiết bị '<strong>${equipmentToDelete.name}</strong>' không? Hành động này không thể hoàn tác.`;
@@ -551,12 +845,121 @@
         }
 
         document.getElementById('confirmDeleteButton').addEventListener('click', async () => {
+            if (currentUserRole !== 'admin') { // Double check role for submission
+                showMessage('Bạn không có quyền thực hiện thao tác này.', 'error');
+                return;
+            }
             if (!equipmentToDelete) return;
 
             equipmentList = equipmentList.filter(eq => eq.id !== equipmentToDelete.id);
-            await saveEquipmentOnline(); // Save to JSONBin.io
+            await saveEquipmentOnline();
+            const fetchedEquipment = await fetchEquipment();
+            equipmentList = fetchedEquipment;
             sortAndRenderEquipment();
             closeModal('confirmDeleteModal');
+        });
+
+        // Handle Mark as Completed (Admin) or Submit for Completion (User)
+        function openMarkCompletedModal(id) {
+            equipmentToMarkCompleted = equipmentList.find(eq => eq.id === id);
+            if (equipmentToMarkCompleted) {
+                const modalTitle = document.getElementById('markCompletedModalTitle');
+                const confirmButton = document.getElementById('confirmMarkCompletedButton');
+
+                // Add evaluation note field for admin
+                const evaluationNoteDiv = document.createElement('div');
+                evaluationNoteDiv.id = 'adminEvaluationNoteDiv';
+                evaluationNoteDiv.innerHTML = `
+                    <label for="adminEvaluationNote" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ghi chú đánh giá (Admin)</label>
+                    <textarea id="adminEvaluationNote" name="adminEvaluationNote" rows="2" class="mt-1 block w-full px-3 py-2"></textarea>
+                `;
+                const notesContainer = document.querySelector('#markCompletedModal .space-y-4');
+                const existingEvaluationDiv = document.getElementById('adminEvaluationNoteDiv');
+                if (existingEvaluationDiv) {
+                    existingEvaluationDiv.remove(); // Remove if already exists to avoid duplicates
+                }
+
+                if (currentUserRole === 'admin') {
+                    modalTitle.textContent = 'Đánh Dấu Hoàn Thành Bảo Dưỡng';
+                    document.getElementById('markCompletedText').innerHTML = `Bạn có muốn đánh dấu bảo dưỡng cho thiết bị '<strong id="markCompletedEquipmentName"></strong>' là đã hoàn thành vào hôm nay không?`;
+                    confirmButton.textContent = 'Hoàn Thành';
+                    confirmButton.className = 'px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500';
+                    notesContainer.appendChild(evaluationNoteDiv); // Add admin evaluation note field
+                } else if (currentUserRole === 'user') {
+                    modalTitle.textContent = 'Gửi Yêu Cầu Hoàn Thành';
+                    document.getElementById('markCompletedText').innerHTML = `Bạn muốn gửi yêu cầu đánh dấu bảo dưỡng cho thiết bị '<strong id="markCompletedEquipmentName"></strong>' là đã làm xong vào hôm nay?`;
+                    confirmButton.textContent = 'Gửi Yêu Cầu';
+                    confirmButton.className = 'px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500';
+                    // No admin evaluation note for user submissions
+                }
+                
+                document.getElementById('markCompletedEquipmentName').textContent = equipmentToMarkCompleted.name;
+                document.getElementById('completedPerformer').value = equipmentToMarkCompleted.performer || '';
+                document.getElementById('completedNotes').value = ''; // Clear notes
+                openModal('markCompletedModal');
+            }
+        }
+
+        document.getElementById('confirmMarkCompletedButton').addEventListener('click', async () => {
+            if (!equipmentToMarkCompleted) return;
+
+            const actualCompletionDateTime = new Date(); // Get current date and time
+            const performer = document.getElementById('completedPerformer').value || (currentUserRole === 'user' ? currentUsername : equipmentToMarkCompleted.performer) || 'N/A';
+            const notes = document.getElementById('completedNotes').value;
+            let adminEvaluationNote = '';
+            if (currentUserRole === 'admin') {
+                const adminNoteInput = document.getElementById('adminEvaluationNote');
+                if (adminNoteInput) {
+                    adminEvaluationNote = adminNoteInput.value;
+                }
+            }
+
+
+            const index = equipmentList.findIndex(eq => eq.id === equipmentToMarkCompleted.id);
+            if (index !== -1) {
+                const currentEquipment = equipmentList[index];
+
+                if (currentUserRole === 'admin') {
+                    // Admin confirms completion: update last_maintenance_date and add to history
+                    const newLastMaintenanceDate = new Date(currentEquipment.last_maintenance_date.getTime() + currentEquipment.maintenance_interval_days * 24 * 60 * 60 * 1000);
+
+                    currentEquipment.completed_maintenances.push({
+                        type: 'completed', // Explicitly mark as completed
+                        scheduledDate: formatDateForInput(currentEquipment.last_maintenance_date), // The date it was scheduled for
+                        performer: performer,
+                        notes: notes,
+                        actionAt: actualCompletionDateTime.toISOString(), // Store full ISO string for time
+                        submittedBy: 'N/A', // Not from pending for direct admin action
+                        actionBy: currentUsername, // Admin's username
+                        adminEvaluationNote: adminEvaluationNote // Admin's evaluation note
+                    });
+
+                    currentEquipment.last_maintenance_date = newLastMaintenanceDate;
+                    currentEquipment.performer = performer;
+                    currentEquipment.updatedAt = new Date().toISOString();
+
+                    showMessage(`Đã đánh dấu bảo dưỡng cho '${currentEquipment.name}' hoàn thành!`, 'success');
+
+                } else if (currentUserRole === 'user') {
+                    // User submits for completion: add to pending_completions
+                    currentEquipment.pending_completions.push({
+                        date: formatDateForInput(currentEquipment.last_maintenance_date), // The date it was scheduled for
+                        performer: performer,
+                        notes: notes,
+                        submittedBy: currentUsername, // Store who submitted
+                        submittedAt: actualCompletionDateTime.toISOString() // Store full ISO string for time
+                    });
+                    showMessage(`Yêu cầu hoàn thành cho '${currentEquipment.name}' đã được gửi!`, 'success');
+                }
+
+                await saveEquipmentOnline();
+                const fetchedEquipment = await fetchEquipment();
+                equipmentList = fetchedEquipment;
+                sortAndRenderEquipment();
+                closeModal('markCompletedModal');
+            } else {
+                showMessage('Lỗi: Không tìm thấy thiết bị để đánh dấu hoàn thành.', 'error');
+            }
         });
 
         // Check Upcoming Maintenance
@@ -609,6 +1012,12 @@
                                 <p class="text-xs text-gray-600 dark:text-gray-300">
                                     Người thực hiện: ${notif.equipment.performer || 'N/A'}
                                 </p>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">
+                                    Số máy: ${notif.equipment.machineNumber || 'N/A'}
+                                </p>
+                                <p class="text-xs text-gray-600 dark:text-gray-300">
+                                    Tên xưởng: ${notif.equipment.workshopName || 'N/A'}
+                                </p>
                             </div>
                         </div>
                     `;
@@ -620,17 +1029,462 @@
             openModal('notificationModal');
         });
 
-        // Initial load and render when the DOM is ready
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load equipment from JSONBin.io instead of localStorage
-            const fetchedEquipment = await fetchEquipment();
-            equipmentList = fetchedEquipment.map(eq => ({
-                ...eq,
-                // Ensure last_maintenance_date is a Date object for calculations
-                last_maintenance_date: new Date(eq.last_maintenance_date + 'T00:00:00') 
-            }));
+        // --- History Functionality ---
+        document.getElementById('viewHistoryButton').addEventListener('click', openHistoryModal);
+
+        function openHistoryModal() {
+            const currentMonth = new Date().getMonth() + 1; // 1-indexed
+            const currentYear = new Date().getFullYear();
+
+            populateMonthYearDropdowns(currentMonth, currentYear);
+            renderHistoryTable(currentMonth, currentYear);
+            openModal('historyModal');
+
+            // Show/hide export button based on admin role
+            const exportButton = document.getElementById('exportExcelButton');
+            if (currentUserRole === 'admin') {
+                exportButton.classList.remove('hidden');
+            } else {
+                exportButton.classList.add('hidden');
+            }
+        }
+
+        function populateMonthYearDropdowns(selectedMonth, selectedYear) {
+            const monthSelect = document.getElementById('historyMonth');
+            const yearSelect = document.getElementById('historyYear');
+
+            // Clear existing options
+            monthSelect.innerHTML = '';
+            yearSelect.innerHTML = '';
+
+            // Populate months
+            const months = [
+                "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+            ];
+            months.forEach((monthName, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1; // Month is 1-indexed
+                option.textContent = monthName;
+                if (index + 1 === selectedMonth) {
+                    option.selected = true;
+                }
+                monthSelect.appendChild(option);
+            });
+
+            // Populate years (e.g., current year - 5 to current year + 1)
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear - 5; year <= currentYear + 1; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === selectedYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+        }
+
+        let currentFilteredHistory = []; // Store the filtered history for export
+
+        function renderHistoryTable(month, year) {
+            const historyContent = document.getElementById('historyContent');
+            currentFilteredHistory = []; // Reset for new filter
+
+            equipmentList.forEach(eq => {
+                eq.completed_maintenances.forEach(log => {
+                    // Use actionAt for filtering by month/year if available, otherwise fallback to scheduledDate
+                    const filterDate = log.actionAt ? new Date(log.actionAt) : new Date(log.scheduledDate + 'T00:00:00'); 
+                    if (filterDate.getMonth() + 1 === month && filterDate.getFullYear() === year) {
+                        currentFilteredHistory.push({
+                            equipmentName: eq.name,
+                            machineNumber: eq.machineNumber || 'N/A',
+                            workshopName: eq.workshopName || 'N/A',
+                            scheduledDate: new Date(log.scheduledDate + 'T00:00:00'), // Keep scheduled date for display
+                            performer: log.performer,
+                            notes: log.notes || '',
+                            actionAt: log.actionAt, // Actual completion/rejection timestamp
+                            type: log.type, // 'completed' or 'rejected'
+                            submittedBy: log.submittedBy || 'N/A', // Who submitted (if from pending)
+                            actionBy: log.actionBy || 'N/A', // Who confirmed/rejected (admin)
+                            adminEvaluationNote: log.adminEvaluationNote || '' // Admin's evaluation note/rejection reason
+                        });
+                    }
+                });
+            });
+
+            if (currentFilteredHistory.length === 0) {
+                historyContent.innerHTML = `
+                    <p class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        Không có lịch sử bảo dưỡng nào trong tháng ${month} năm ${year}.
+                    </p>
+                `;
+                return;
+            }
+
+            // Sort history by actionAt (newest first)
+            currentFilteredHistory.sort((a, b) => new Date(b.actionAt).getTime() - new Date(a.actionAt).getTime());
+
+            let historyTableHtml = `
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Tên Thiết Bị</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Số Máy</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tên Xưởng</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày Bảo Dưỡng (Theo lịch)</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Người Thực Hiện</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ghi Chú Công Việc</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Thời Gian Thực Hiện</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Trạng Thái</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Người Gửi (User)</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Người Xác Nhận/Từ Chối (Admin)</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tr-lg">Ghi Chú Đánh Giá/Lý Do (Admin)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            `;
+
+            currentFilteredHistory.forEach(entry => {
+                let statusText = '';
+                let statusClass = '';
+                if (entry.type === 'completed') {
+                    statusText = 'Hoàn thành';
+                    statusClass = 'text-green-600 font-semibold';
+                } else if (entry.type === 'rejected') {
+                    statusText = 'Từ chối';
+                    statusClass = 'text-red-600 font-semibold';
+                } else {
+                    statusText = 'Không xác định';
+                    statusClass = 'text-gray-500';
+                }
+
+                historyTableHtml += `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                            ${entry.equipmentName}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.machineNumber}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.workshopName}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${formatDate(entry.scheduledDate)}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.performer || 'N/A'}
+                        </td>
+                        <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.notes || 'Không có'}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${formatDateTime(entry.actionAt)}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm ${statusClass}">
+                            ${statusText}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.submittedBy || 'N/A'}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.actionBy || 'N/A'}
+                        </td>
+                        <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300">
+                            ${entry.adminEvaluationNote || 'Không có'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            historyTableHtml += `
+                    </tbody>
+                </table>
+            `;
+            historyContent.innerHTML = historyTableHtml;
+        }
+
+        document.getElementById('filterHistoryButton').addEventListener('click', () => {
+            const month = parseInt(document.getElementById('historyMonth').value, 10);
+            const year = parseInt(document.getElementById('historyYear').value, 10);
+            renderHistoryTable(month, year);
+        });
+
+        // --- Export to Excel (CSV) Functionality ---
+        document.getElementById('exportExcelButton').addEventListener('click', exportHistoryToExcel);
+
+        function exportHistoryToExcel() {
+            if (currentFilteredHistory.length === 0) {
+                showMessage('Không có dữ liệu để xuất.', 'error');
+                return;
+            }
+
+            const headers = [
+                'Tên Thiết Bị', 'Số Máy', 'Tên Xưởng', 'Ngày Bảo Dưỡng (Theo lịch)', 'Người Thực Hiện',
+                'Ghi Chú Công Việc', 'Thời Gian Thực Hiện', 'Trạng Thái', 'Người Gửi (User)',
+                'Người Xác Nhận/Từ Chối (Admin)', 'Ghi Chú Đánh Giá/Lý Do (Admin)'
+            ];
+
+            let csvContent = "\uFEFF"; // Add BOM for proper UTF-8 encoding in Excel
+            csvContent += headers.map(header => `"${header}"`).join(',') + '\n'; // Quote headers and join with comma
+
+            currentFilteredHistory.forEach(row => {
+                const rowData = [
+                    row.equipmentName,
+                    row.machineNumber,
+                    row.workshopName,
+                    formatDate(row.scheduledDate),
+                    row.performer,
+                    row.notes,
+                    formatDateTime(row.actionAt),
+                    row.type === 'completed' ? 'Hoàn thành' : (row.type === 'rejected' ? 'Từ chối' : 'Không xác định'),
+                    row.submittedBy,
+                    row.actionBy,
+                    row.adminEvaluationNote
+                ];
+                // Enclose each field in double quotes to handle commas within data
+                csvContent += rowData.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // Feature detection for download attribute
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `LichSuBaoDuong_${formatDateForInput(new Date())}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showMessage('Đã xuất lịch sử bảo dưỡng ra file Excel thành công!', 'success');
+            } else {
+                showMessage('Trình duyệt của bạn không hỗ trợ xuất file trực tiếp. Vui lòng sao chép dữ liệu thủ công.', 'error');
+            }
+        }
+
+        // --- Pending Completions (Admin Only) ---
+        document.getElementById('viewPendingCompletionsButton').addEventListener('click', openPendingCompletionsModal);
+
+        function updatePendingCompletionsCount() {
+            let totalPending = 0;
+            equipmentList.forEach(eq => {
+                totalPending += eq.pending_completions.length;
+            });
+            const countSpan = document.getElementById('pendingCompletionsCount');
+            countSpan.textContent = totalPending;
+            if (totalPending > 0) {
+                countSpan.classList.remove('hidden');
+            } else {
+                countSpan.classList.add('hidden');
+            }
+        }
+
+        function openPendingCompletionsModal() {
+            const pendingContent = document.getElementById('pendingCompletionsContent');
+            let pendingItemsHtml = '';
+            let hasPending = false;
+
+            equipmentList.forEach(eq => {
+                if (eq.pending_completions && eq.pending_completions.length > 0) {
+                    hasPending = true;
+                    pendingItemsHtml += `
+                        <div class="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
+                            <h4 class="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2">${eq.name} (Số máy: ${eq.machineNumber || 'N/A'})</h4>
+                            <ul class="list-disc pl-5 space-y-2">
+                    `;
+                    eq.pending_completions.forEach((log, logIndex) => {
+                        pendingItemsHtml += `
+                                <li class="text-sm text-gray-700 dark:text-gray-300">
+                                    Yêu cầu bởi: <span class="font-medium">${log.submittedBy || 'N/A'}</span> vào ngày: ${formatDateTime(log.submittedAt)}
+                                    <br>
+                                    Người thực hiện: ${log.performer || 'N/A'}
+                                    <br>
+                                    Ghi chú công việc: ${log.notes || 'Không có'}
+                                    <div class="mt-2">
+                                        <label for="adminEvaluationNote_${eq.id}_${logIndex}" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ghi chú đánh giá/Lý do từ chối (Admin)</label>
+                                        <textarea id="adminEvaluationNote_${eq.id}_${logIndex}" name="adminEvaluationNote" rows="2" class="mt-1 block w-full px-3 py-2"></textarea>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button
+                                            onclick="confirmPendingCompletion('${eq.id}', ${logIndex})"
+                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md shadow-sm transition duration-300 ease-in-out"
+                                        >
+                                            <i data-lucide="check-circle" class="w-4 h-4 inline-block mr-1"></i> Xác nhận hoàn thành
+                                        </button>
+                                        <button
+                                            onclick="rejectPendingCompletion('${eq.id}', ${logIndex})"
+                                            class="ml-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-md shadow-sm transition duration-300 ease-in-out"
+                                        >
+                                            <i data-lucide="x-circle" class="w-4 h-4 inline-block mr-1"></i> Từ chối
+                                        </button>
+                                    </div>
+                                </li>
+                        `;
+                    });
+                    pendingItemsHtml += `
+                            </ul>
+                        </div>
+                    `;
+                }
+            });
+
+            if (!hasPending) {
+                pendingContent.innerHTML = `
+                    <p class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        Không có yêu cầu hoàn thành nào đang chờ.
+                    </p>
+                `;
+            } else {
+                pendingContent.innerHTML = pendingItemsHtml;
+                lucide.createIcons(); // Re-render Lucide icons
+            }
+            openModal('pendingCompletionsModal');
+        }
+
+        async function confirmPendingCompletion(equipmentId, logIndex) {
+            const eqIndex = equipmentList.findIndex(eq => eq.id === equipmentId);
+            if (eqIndex !== -1) {
+                const equipment = equipmentList[eqIndex];
+                const pendingLog = equipment.pending_completions[logIndex];
+                const confirmationDateTime = new Date(); // Admin's actual confirmation time
+                const adminEvaluationNote = document.getElementById(`adminEvaluationNote_${equipmentId}_${logIndex}`).value; // Get admin's evaluation note
+
+                // Apply the pending completion to actual maintenance history
+                const newLastMaintenanceDate = new Date(equipment.last_maintenance_date.getTime() + equipment.maintenance_interval_days * 24 * 60 * 60 * 1000);
+
+                equipment.completed_maintenances.push({
+                    type: 'completed', // Explicitly mark as completed
+                    scheduledDate: pendingLog.date, // Use the date from the pending log (user's reported date)
+                    performer: pendingLog.performer,
+                    notes: pendingLog.notes,
+                    actionAt: confirmationDateTime.toISOString(), // Admin confirms it now (actual time of confirmation)
+                    submittedBy: pendingLog.submittedBy, // User who submitted
+                    actionBy: currentUsername, // Admin who confirmed
+                    adminEvaluationNote: adminEvaluationNote // Admin's evaluation note
+                });
+
+                equipment.last_maintenance_date = newLastMaintenanceDate;
+                equipment.performer = pendingLog.performer; // Update performer
+                equipment.updatedAt = new Date().toISOString();
+
+                // Remove the confirmed log from pending_completions
+                equipment.pending_completions.splice(logIndex, 1);
+
+                await saveEquipmentOnline();
+                const fetchedEquipment = await fetchEquipment();
+                equipmentList = fetchedEquipment;
+                sortAndRenderEquipment();
+                showMessage(`Đã xác nhận hoàn thành bảo dưỡng cho '${equipment.name}'!`, 'success');
+                openPendingCompletionsModal(); // Re-open modal to refresh list
+            } else {
+                showMessage('Lỗi: Không tìm thấy thiết bị để xác nhận.', 'error');
+            }
+        }
+
+        async function rejectPendingCompletion(equipmentId, logIndex) {
+            const eqIndex = equipmentList.findIndex(eq => eq.id === equipmentId);
+            if (eqIndex !== -1) {
+                const equipment = equipmentList[eqIndex];
+                const pendingLog = equipment.pending_completions[logIndex];
+                const rejectionDateTime = new Date(); // Admin's actual rejection time
+                const adminEvaluationNote = document.getElementById(`adminEvaluationNote_${equipmentId}_${logIndex}`).value; // Get admin's evaluation note/reason
+
+                // Add rejected entry to history
+                equipment.completed_maintenances.push({
+                    type: 'rejected', // Explicitly mark as rejected
+                    scheduledDate: pendingLog.date, // Use the date from the pending log
+                    performer: pendingLog.performer,
+                    notes: pendingLog.notes,
+                    actionAt: rejectionDateTime.toISOString(), // Time of rejection
+                    submittedBy: pendingLog.submittedBy, // User who submitted
+                    actionBy: currentUsername, // Admin who rejected
+                    adminEvaluationNote: adminEvaluationNote || 'Không có lý do cụ thể.' // Admin's rejection reason
+                });
+
+                // Remove the rejected log from pending_completions
+                equipment.pending_completions.splice(logIndex, 1);
+
+                await saveEquipmentOnline();
+                const fetchedEquipment = await fetchEquipment();
+                equipmentList = fetchedEquipment;
+                sortAndRenderEquipment();
+                showMessage(`Đã từ chối yêu cầu hoàn thành cho '${equipment.name}'.`, 'error');
+                openPendingCompletionsModal(); // Re-open modal to refresh list
+            } else {
+                showMessage('Lỗi: Không tìm thấy thiết bị để từ chối.', 'error');
+            }
+        }
+
+        // --- Login and Session Management ---
+        function showLoginPage() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginMessage').classList.add('hidden'); // Clear previous login messages
+        }
+
+        function showMainApp(role, username) {
+            currentUserRole = role;
+            currentUsername = username; // Store username
+            sessionStorage.setItem('loggedInUserRole', role); // Store role in session storage
+            sessionStorage.setItem('loggedInUsername', username); // Store username in session storage
+            document.getElementById('userIdDisplay').querySelector('span').textContent = `${username} (${role})`; // Display role and username
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+
+            // Conditionally hide/show buttons based on role
+            const addBtn = document.getElementById('addEquipmentButton');
+            const viewPendingBtn = document.getElementById('viewPendingCompletionsButton');
+
+            if (role === 'admin') {
+                addBtn.classList.remove('hidden');
+                viewPendingBtn.classList.remove('hidden');
+            } else { // user
+                addBtn.classList.add('hidden');
+                viewPendingBtn.classList.add('hidden');
+            }
+            // Re-render equipment list to apply role-based action button visibility
             sortAndRenderEquipment();
-            lucide.createIcons(); // Initialize all Lucide icons on page load
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const loginMessage = document.getElementById('loginMessage');
+
+            if (USERS[usernameInput] && USERS[usernameInput] === passwordInput) {
+                showMainApp(usernameInput === 'admin' ? 'admin' : 'user', usernameInput);
+                // Initial load of equipment after successful login
+                // This is already handled by the DOMContentLoaded listener if loggedInUserRole is found
+            } else {
+                loginMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+                loginMessage.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            sessionStorage.removeItem('loggedInUserRole'); // Clear role from session storage
+            sessionStorage.removeItem('loggedInUsername'); // Clear username from session storage
+            currentUserRole = null;
+            currentUsername = null;
+            showLoginPage();
+        });
+
+        // Initial check on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const storedRole = sessionStorage.getItem('loggedInUserRole');
+            const storedUsername = sessionStorage.getItem('loggedInUsername');
+            if (storedRole && storedUsername) {
+                showMainApp(storedRole, storedUsername);
+                // Load equipment if already logged in
+                const fetchedEquipment = await fetchEquipment();
+                equipmentList = fetchedEquipment;
+                sortAndRenderEquipment();
+            } else {
+                showLoginPage();
+            }
+            lucide.createIcons(); // Ensure icons are created on initial load
         });
     </script>
 </body>
