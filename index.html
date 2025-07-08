@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark"> <!-- Added 'dark' class for default dark mode -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,8 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6; /* Light gray background */
             color: #1f2937; /* Dark gray text */
+            transform-origin: top left; /* Ensure zoom originates from top-left */
+            transition: transform 0.2s ease-out; /* Smooth zoom transition */
         }
         .dark body {
             background-color: #111827; /* Dark mode background */
@@ -37,12 +39,31 @@
         input[type="password"],
         select,
         textarea {
-            @apply bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+            /* Adjusted dark mode text color to white for better visibility */
+            @apply bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white font-bold border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
         }
         /* Style for disabled buttons */
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        /* Ensure table cells do not wrap for history table */
+        #historyContent table td,
+        #historyContent table th { /* Apply to th as well for consistency */
+            white-space: nowrap;
+        }
+        /* Notification badge style */
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444; /* Red */
+            color: white;
+            border-radius: 9999px;
+            padding: 2px 6px;
+            font-size: 0.75rem; /* text-xs */
+            font-weight: bold;
+            line-height: 1;
         }
     </style>
     <!-- Optional: Inter font -->
@@ -68,8 +89,7 @@
                 </button>
             </form>
             <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-               Design by Phong <br>
-                
+                Design by Phong
             </p>
         </div>
     </div>
@@ -78,7 +98,7 @@
     <div id="mainApp" class="hidden min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8 rounded-lg shadow-lg">
         <!-- User ID Display -->
         <div id="userIdDisplay" class="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">
-            ID người dùng: <span class="font-mono bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-md">local-user-id</span>
+            ID người dùng: <span class="font-mono bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-md"></span>
             <button id="logoutButton" class="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-full shadow-md transition duration-300 ease-in-out">Đăng Xuất</button>
         </div>
 
@@ -127,6 +147,61 @@
                 <i data-lucide="list-checks" class="w-5 h-5 mr-2"></i> Yêu Cầu Hoàn Thành
                 <span id="pendingCompletionsCount" class="ml-2 px-2 py-0.5 text-xs font-bold bg-white text-purple-600 rounded-full">0</span>
             </button>
+            <button
+                id="myNotificationsButton"
+                class="hidden relative flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-75"
+            >
+                <i data-lucide="bell-ring" class="w-5 h-5 mr-2"></i> Thông báo của tôi
+                <span id="myNotificationsCount" class="notification-badge hidden">0</span>
+            </button>
+            <button
+                id="darkModeToggle"
+                class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+            >
+                <i data-lucide="moon" class="w-5 h-5 mr-2"></i> Chế độ tối
+            </button>
+            <button
+                id="zoomInButton"
+                class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+            >
+                <i data-lucide="zoom-in" class="w-5 h-5 mr-2"></i> Phóng to
+            </button>
+            <button
+                id="zoomOutButton"
+                class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+            >
+                <i data-lucide="zoom-out" class="w-5 h-5 mr-2"></i> Thu nhỏ
+            </button>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Tìm Kiếm Thiết Bị</h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input
+                    type="text"
+                    id="searchKeyword"
+                    placeholder="Tìm theo tên thiết bị, tên xưởng, hoặc người thực hiện..."
+                    class="flex-grow px-3 py-2 rounded-md shadow-sm"
+                >
+                <select id="searchType" class="px-3 py-2 rounded-md shadow-sm">
+                    <option value="name">Tên Thiết Bị</option>
+                    <option value="workshopName">Tên Xưởng</option>
+                    <option value="performer">Người Thực Hiện</option> <!-- New option for performer search -->
+                </select>
+                <button
+                    id="applySearchButton"
+                    class="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-md shadow-sm transition duration-300 ease-in-out"
+                >
+                    <i data-lucide="search" class="w-5 h-5 inline-block mr-2"></i> Tìm Kiếm
+                </button>
+                <button
+                    id="clearSearchButton"
+                    class="px-6 py-2 bg-gray-400 hover:bg-gray-500 text-white font-semibold rounded-md shadow-sm transition duration-300 ease-in-out"
+                >
+                    Xóa Tìm Kiếm
+                </button>
+            </div>
         </div>
 
         <!-- Equipment List Table -->
@@ -394,6 +469,26 @@
             </div>
         </div>
 
+        <!-- My Notifications Modal (User and Admin) -->
+        <div id="myNotificationsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full modal-content">
+                <h3 class="text-lg font-bold leading-6 text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">
+                    Thông báo của tôi
+                </h3>
+                <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onclick="closeModal('myNotificationsModal')">
+                    <span class="sr-only">Đóng</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div id="myNotificationsContent" class="mt-2 text-gray-700 dark:text-gray-300">
+                    <p class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        Không có thông báo nào.
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -540,10 +635,10 @@
             }, 3000);
         }
 
-        // Function to render the equipment list
-        function renderEquipmentList() {
+        // Function to render the equipment list based on a provided list (or global equipmentList)
+        function renderEquipmentList(listToRender = equipmentList) {
             const container = document.getElementById('equipmentListContainer');
-            if (equipmentList.length === 0) {
+            if (listToRender.length === 0) {
                 container.innerHTML = `
                     <p class="text-center text-gray-500 dark:text-gray-400 py-8">
                         Chưa có thiết bị nào được thêm. Hãy thêm một thiết bị mới để bắt đầu!
@@ -557,6 +652,7 @@
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">STT</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Tên Thiết Bị</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Số Máy</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tên Xưởng</th>
@@ -570,7 +666,7 @@
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             `;
 
-            equipmentList.forEach(eq => {
+            listToRender.forEach((eq, index) => {
                 const nextMaintenanceDate = new Date(eq.last_maintenance_date.getTime() + eq.maintenance_interval_days * 24 * 60 * 60 * 1000);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0); // Normalize today
@@ -638,6 +734,9 @@
 
                 tableHtml += `
                     <tr class="${rowClass}">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                            ${index + 1}
+                        </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                             ${eq.name}
                         </td>
@@ -688,8 +787,10 @@
                 const nextB = new Date(b.last_maintenance_date.getTime() + b.maintenance_interval_days * 24 * 60 * 60 * 1000);
                 return nextA.getTime() - nextB.getTime();
             });
-            renderEquipmentList();
+            // Call applyFiltersAndSearch here to ensure sorted list is also filtered/searched
+            applyFiltersAndSearch(); 
             updatePendingCompletionsCount(); // Update count whenever list is rendered
+            updateMyNotificationsCount(); // Update user notification count
         }
 
         // Generic function to open a modal
@@ -701,14 +802,27 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
             // Clear editing/deleting state when modals are closed
+            if (modalId === 'addModal') document.getElementById('adminEvaluationNoteDiv')?.remove(); // Remove admin note field if exists
             if (modalId === 'editModal') editingEquipment = null;
             if (modalId === 'confirmDeleteModal') equipmentToDelete = null;
-            if (modalId === 'markCompletedModal') equipmentToMarkCompleted = null;
+            if (modalId === 'markCompletedModal') {
+                equipmentToMarkCompleted = null;
+                document.getElementById('adminEvaluationNoteDiv')?.remove(); // Remove admin note field if exists
+            }
+            if (modalId === 'pendingCompletionsModal') {
+                // Clear any dynamically added textareas
+                const textareas = document.querySelectorAll('#pendingCompletionsContent textarea');
+                textareas.forEach(textarea => textarea.value = '');
+            }
+            if (modalId === 'myNotificationsModal') {
+                // When user closes their notification modal, mark them as viewed
+                markUserNotificationsAsViewed();
+            }
         }
 
         // Event listener for clicking outside modals
         document.addEventListener('mousedown', (event) => {
-            const modals = ['addModal', 'editModal', 'notificationModal', 'confirmDeleteModal', 'markCompletedModal', 'historyModal', 'pendingCompletionsModal'];
+            const modals = ['addModal', 'editModal', 'notificationModal', 'confirmDeleteModal', 'markCompletedModal', 'historyModal', 'pendingCompletionsModal', 'myNotificationsModal'];
             modals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && !modal.classList.contains('hidden')) {
@@ -766,7 +880,7 @@
             await saveEquipmentOnline();
             const fetchedEquipment = await fetchEquipment();
             equipmentList = fetchedEquipment;
-            sortAndRenderEquipment();
+            sortAndRenderEquipment(); // This will call applyFiltersAndSearch
             closeModal('addModal');
         });
 
@@ -824,7 +938,7 @@
                 await saveEquipmentOnline();
                 const fetchedEquipment = await fetchEquipment();
                 equipmentList = fetchedEquipment;
-                sortAndRenderEquipment();
+                sortAndRenderEquipment(); // This will call applyFiltersAndSearch
                 closeModal('editModal');
             } else {
                 showMessage('Lỗi: Không tìm thấy thiết bị để cập nhật.', 'error');
@@ -855,7 +969,7 @@
             await saveEquipmentOnline();
             const fetchedEquipment = await fetchEquipment();
             equipmentList = fetchedEquipment;
-            sortAndRenderEquipment();
+            sortAndRenderEquipment(); // This will call applyFiltersAndSearch
             closeModal('confirmDeleteModal');
         });
 
@@ -931,7 +1045,8 @@
                         actionAt: actualCompletionDateTime.toISOString(), // Store full ISO string for time
                         submittedBy: 'N/A', // Not from pending for direct admin action
                         actionBy: currentUsername, // Admin's username
-                        adminEvaluationNote: adminEvaluationNote // Admin's evaluation note
+                        adminEvaluationNote: adminEvaluationNote, // Admin's evaluation note
+                        viewedBy: [] // Initialize viewedBy for new history entry
                     });
 
                     currentEquipment.last_maintenance_date = newLastMaintenanceDate;
@@ -955,7 +1070,7 @@
                 await saveEquipmentOnline();
                 const fetchedEquipment = await fetchEquipment();
                 equipmentList = fetchedEquipment;
-                sortAndRenderEquipment();
+                sortAndRenderEquipment(); // This will call applyFiltersAndSearch
                 closeModal('markCompletedModal');
             } else {
                 showMessage('Lỗi: Không tìm thấy thiết bị để đánh dấu hoàn thành.', 'error');
@@ -1361,7 +1476,8 @@
                     actionAt: confirmationDateTime.toISOString(), // Admin confirms it now (actual time of confirmation)
                     submittedBy: pendingLog.submittedBy, // User who submitted
                     actionBy: currentUsername, // Admin who confirmed
-                    adminEvaluationNote: adminEvaluationNote // Admin's evaluation note
+                    adminEvaluationNote: adminEvaluationNote, // Admin's evaluation note
+                    viewedBy: [] // Initialize viewedBy for new history entry
                 });
 
                 equipment.last_maintenance_date = newLastMaintenanceDate;
@@ -1374,7 +1490,7 @@
                 await saveEquipmentOnline();
                 const fetchedEquipment = await fetchEquipment();
                 equipmentList = fetchedEquipment;
-                sortAndRenderEquipment();
+                sortAndRenderEquipment(); // This will call applyFiltersAndSearch
                 showMessage(`Đã xác nhận hoàn thành bảo dưỡng cho '${equipment.name}'!`, 'success');
                 openPendingCompletionsModal(); // Re-open modal to refresh list
             } else {
@@ -1399,7 +1515,8 @@
                     actionAt: rejectionDateTime.toISOString(), // Time of rejection
                     submittedBy: pendingLog.submittedBy, // User who submitted
                     actionBy: currentUsername, // Admin who rejected
-                    adminEvaluationNote: adminEvaluationNote || 'Không có lý do cụ thể.' // Admin's rejection reason
+                    adminEvaluationNote: adminEvaluationNote || 'Không có lý do cụ thể.', // Admin's rejection reason
+                    viewedBy: [] // Initialize viewedBy for new history entry
                 });
 
                 // Remove the rejected log from pending_completions
@@ -1408,12 +1525,199 @@
                 await saveEquipmentOnline();
                 const fetchedEquipment = await fetchEquipment();
                 equipmentList = fetchedEquipment;
-                sortAndRenderEquipment();
+                sortAndRenderEquipment(); // This will call applyFiltersAndSearch
                 showMessage(`Đã từ chối yêu cầu hoàn thành cho '${equipment.name}'.`, 'error');
                 openPendingCompletionsModal(); // Re-open modal to refresh list
             } else {
                 showMessage('Lỗi: Không tìm thấy thiết bị để từ chối.', 'error');
             }
+        }
+
+        // --- My Notifications Functionality (for User) ---
+        document.getElementById('myNotificationsButton').addEventListener('click', openMyNotificationsModal);
+
+        function updateMyNotificationsCount() {
+            let totalMyNotifications = 0;
+            if (currentUsername) {
+                equipmentList.forEach(eq => {
+                    eq.completed_maintenances.forEach(log => {
+                        // Count notifications for the current user that haven't been viewed by them
+                        if (log.submittedBy === currentUsername && !(log.viewedBy && log.viewedBy.includes(currentUsername))) {
+                            totalMyNotifications++;
+                        }
+                    });
+                });
+            }
+            
+            const countSpan = document.getElementById('myNotificationsCount');
+            countSpan.textContent = totalMyNotifications;
+            if (totalMyNotifications > 0) {
+                countSpan.classList.remove('hidden');
+            } else {
+                countSpan.classList.add('hidden');
+            }
+        }
+
+        function openMyNotificationsModal() {
+            const myNotificationsContent = document.getElementById('myNotificationsContent');
+            let notificationsHtml = '';
+            const myNotifications = [];
+
+            if (currentUsername) {
+                equipmentList.forEach(eq => {
+                    eq.completed_maintenances.forEach(log => {
+                        if (log.submittedBy === currentUsername) {
+                            myNotifications.push({
+                                equipmentName: eq.name,
+                                type: log.type,
+                                actionAt: log.actionAt,
+                                actionBy: log.actionBy,
+                                adminEvaluationNote: log.adminEvaluationNote,
+                                // Keep reference to the original log object for marking as viewed
+                                originalLog: log 
+                            });
+                        }
+                    });
+                });
+            }
+
+            if (myNotifications.length === 0) {
+                myNotificationsContent.innerHTML = `
+                    <p class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        Không có thông báo nào dành cho bạn.
+                    </p>
+                `;
+            } else {
+                // Sort notifications by actionAt (newest first)
+                myNotifications.sort((a, b) => new Date(b.actionAt).getTime() - new Date(a.actionAt).getTime());
+
+                notificationsHtml += '<div class="space-y-4">';
+                myNotifications.forEach(notif => {
+                    let statusText = '';
+                    let statusClass = '';
+                    if (notif.type === 'completed') {
+                        statusText = 'Đã được Admin xác nhận hoàn thành';
+                        statusClass = 'text-green-600';
+                    } else if (notif.type === 'rejected') {
+                        statusText = 'Đã bị Admin từ chối';
+                        statusClass = 'text-red-600';
+                    } else {
+                        statusText = 'Trạng thái không xác định';
+                        statusClass = 'text-gray-500';
+                    }
+
+                    notificationsHtml += `
+                        <div class="p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                            <p class="font-semibold text-gray-900 dark:text-gray-100">Thiết bị: ${notif.equipmentName}</p>
+                            <p class="text-sm ${statusClass}">${statusText} vào lúc ${formatDateTime(notif.actionAt)}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Bởi Admin: ${notif.actionBy || 'N/A'}</p>
+                            ${notif.adminEvaluationNote ? `<p class="text-xs text-gray-600 dark:text-gray-300">Ghi chú: ${notif.adminEvaluationNote}</p>` : ''}
+                        </div>
+                    `;
+                });
+                notificationsHtml += '</div>';
+                myNotificationsContent.innerHTML = notificationsHtml;
+            }
+            openModal('myNotificationsModal');
+        }
+
+        // When user closes their notification modal, mark them as viewed and save
+        async function markUserNotificationsAsViewed() {
+            if (!currentUsername) return; // Only mark if a user is logged in
+
+            let changesMade = false;
+            equipmentList.forEach(eq => {
+                eq.completed_maintenances.forEach(log => {
+                    if (log.submittedBy === currentUsername && !(log.viewedBy && log.viewedBy.includes(currentUsername))) {
+                        if (!log.viewedBy) {
+                            log.viewedBy = [];
+                        }
+                        log.viewedBy.push(currentUsername);
+                        changesMade = true;
+                    }
+                });
+            });
+
+            if (changesMade) {
+                await saveEquipmentOnline();
+                // No need to re-fetch here, just update the count visually
+                updateMyNotificationsCount(); 
+            }
+        }
+
+
+        // --- Search Functionality ---
+        document.getElementById('applySearchButton').addEventListener('click', applyFiltersAndSearch);
+        document.getElementById('clearSearchButton').addEventListener('click', clearSearch);
+        document.getElementById('searchKeyword').addEventListener('input', applyFiltersAndSearch); // Live search
+        document.getElementById('searchType').addEventListener('change', applyFiltersAndSearch); // Live filter type change
+
+        function applyFiltersAndSearch() {
+            const searchKeyword = document.getElementById('searchKeyword').value.toLowerCase();
+            const searchType = document.getElementById('searchType').value;
+
+            let filteredAndSearchedList = equipmentList;
+
+            if (searchKeyword) {
+                filteredAndSearchedList = equipmentList.filter(eq => {
+                    if (searchType === 'name') {
+                        return eq.name.toLowerCase().includes(searchKeyword);
+                    } else if (searchType === 'workshopName') {
+                        return (eq.workshopName || '').toLowerCase().includes(searchKeyword);
+                    } else if (searchType === 'performer') { // New filter logic for performer
+                        return (eq.performer || '').toLowerCase().includes(searchKeyword);
+                    }
+                    return false;
+                });
+            }
+            renderEquipmentList(filteredAndSearchedList); // Render the filtered list
+        }
+
+        function clearSearch() {
+            document.getElementById('searchKeyword').value = '';
+            document.getElementById('searchType').value = 'name'; // Reset to default
+            applyFiltersAndSearch(); // Re-render with no filter
+        }
+
+        // --- Dark Mode Toggle ---
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateDarkModeButton(isDarkMode);
+        });
+
+        function updateDarkModeButton(isDarkMode) {
+            const toggleButton = document.getElementById('darkModeToggle');
+            const toggleIcon = toggleButton.querySelector('i');
+            if (isDarkMode) {
+                toggleIcon.setAttribute('data-lucide', 'sun');
+                toggleButton.innerHTML = `<i data-lucide="sun" class="w-5 h-5 mr-2"></i> Chế độ sáng`;
+            } else {
+                toggleIcon.setAttribute('data-lucide', 'moon');
+                toggleButton.innerHTML = `<i data-lucide="moon" class="w-5 h-5 mr-2"></i> Chế độ tối`;
+            }
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+        // --- Zoom Functionality ---
+        let currentZoomLevel = 1.0;
+        const ZOOM_STEP = 0.1;
+        const MIN_ZOOM = 0.5;
+        const MAX_ZOOM = 2.0;
+
+        document.getElementById('zoomInButton').addEventListener('click', () => {
+            currentZoomLevel = Math.min(MAX_ZOOM, currentZoomLevel + ZOOM_STEP);
+            applyZoom();
+        });
+
+        document.getElementById('zoomOutButton').addEventListener('click', () => {
+            currentZoomLevel = Math.max(MIN_ZOOM, currentZoomLevel - ZOOM_STEP);
+            applyZoom();
+        });
+
+        function applyZoom() {
+            document.body.style.transform = `scale(${currentZoomLevel})`;
         }
 
         // --- Login and Session Management ---
@@ -1428,26 +1732,29 @@
             currentUsername = username; // Store username
             sessionStorage.setItem('loggedInUserRole', role); // Store role in session storage
             sessionStorage.setItem('loggedInUsername', username); // Store username in session storage
-            document.getElementById('userIdDisplay').querySelector('span').textContent = `${username} (${role})`; // Display role and username
+            document.getElementById('userIdDisplay').querySelector('span').textContent = `${currentUsername} (${currentUserRole})`; // Display username and role
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
 
             // Conditionally hide/show buttons based on role
             const addBtn = document.getElementById('addEquipmentButton');
             const viewPendingBtn = document.getElementById('viewPendingCompletionsButton');
+            const myNotificationsBtn = document.getElementById('myNotificationsButton');
 
             if (role === 'admin') {
                 addBtn.classList.remove('hidden');
                 viewPendingBtn.classList.remove('hidden');
+                myNotificationsBtn.classList.remove('hidden'); // Admin can also view their notifications (if they submitted anything)
             } else { // user
                 addBtn.classList.add('hidden');
                 viewPendingBtn.classList.add('hidden');
+                myNotificationsBtn.classList.remove('hidden'); // User always sees their notifications
             }
             
             // Explicitly fetch data after login to ensure it's up-to-date
             const fetchedEquipment = await fetchEquipment();
             equipmentList = fetchedEquipment;
-            sortAndRenderEquipment(); // Sort and render after data is fetched
+            sortAndRenderEquipment(); // Sort and render after data is fetched, which also applies search
         }
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -1474,6 +1781,16 @@
 
         // Initial check on page load
         document.addEventListener('DOMContentLoaded', async () => {
+            // Apply saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+                updateDarkModeButton(false);
+            } else { // Default to dark or if 'dark' is explicitly saved
+                document.documentElement.classList.add('dark');
+                updateDarkModeButton(true);
+            }
+
             const storedRole = sessionStorage.getItem('loggedInUserRole');
             const storedUsername = sessionStorage.getItem('loggedInUsername');
             if (storedRole && storedUsername) {
