@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" class="dark"> <!-- Added 'dark' class for default dark mode -->
+<html lang="vi" class="dark"> <!-- Forced 'dark' class for default dark mode -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,10 +37,13 @@
         input[type="number"],
         input[type="date"],
         input[type="password"],
-        select,
-        textarea {
-            /* Adjusted dark mode text color to white for better visibility */
-            @apply bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white font-bold border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+        textarea,
+        select { /* Apply to all relevant input types and select */
+            /* Apply Tailwind classes for background, border, shadow, focus */
+            @apply bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+            /* Explicitly set text color to black and ensure bold font-weight */
+            color: #000000 !important; /* Force black text in all modes */
+            font-weight: bold; /* Ensure bold text */
         }
         /* Style for disabled buttons */
         button:disabled {
@@ -154,12 +157,7 @@
                 <i data-lucide="bell-ring" class="w-5 h-5 mr-2"></i> Thông báo của tôi
                 <span id="myNotificationsCount" class="notification-badge hidden">0</span>
             </button>
-            <button
-                id="darkModeToggle"
-                class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
-            >
-                <i data-lucide="moon" class="w-5 h-5 mr-2"></i> Chế độ tối
-            </button>
+            <!-- Removed Dark Mode Toggle Button -->
             <button
                 id="zoomInButton"
                 class="flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
@@ -1680,25 +1678,8 @@
         }
 
         // --- Dark Mode Toggle ---
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
-            const isDarkMode = document.documentElement.classList.contains('dark');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            updateDarkModeButton(isDarkMode);
-        });
-
-        function updateDarkModeButton(isDarkMode) {
-            const toggleButton = document.getElementById('darkModeToggle');
-            const toggleIcon = toggleButton.querySelector('i');
-            if (isDarkMode) {
-                toggleIcon.setAttribute('data-lucide', 'sun');
-                toggleButton.innerHTML = `<i data-lucide="sun" class="w-5 h-5 mr-2"></i> Chế độ sáng`;
-            } else {
-                toggleIcon.setAttribute('data-lucide', 'moon');
-                toggleButton.innerHTML = `<i data-lucide="moon" class="w-5 h-5 mr-2"></i> Chế độ tối`;
-            }
-            lucide.createIcons(); // Re-render Lucide icons
-        }
+        // Removed the dark mode toggle button and related logic
+        // The HTML tag has class="dark" to force dark mode by default.
 
         // --- Zoom Functionality ---
         let currentZoomLevel = 1.0;
@@ -1781,15 +1762,9 @@
 
         // Initial check on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            // Apply saved theme preference
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.documentElement.classList.remove('dark');
-                updateDarkModeButton(false);
-            } else { // Default to dark or if 'dark' is explicitly saved
-                document.documentElement.classList.add('dark');
-                updateDarkModeButton(true);
-            }
+            // Since we are forcing dark mode, no need to check localStorage for theme.
+            // The 'dark' class is already on the <html> tag.
+            // updateDarkModeButton(true); // Call once to set initial icon/text if needed, but not strictly necessary with fixed dark mode.
 
             const storedRole = sessionStorage.getItem('loggedInUserRole');
             const storedUsername = sessionStorage.getItem('loggedInUsername');
